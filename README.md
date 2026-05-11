@@ -57,6 +57,27 @@ go run ./cmd/txt2bdf my_font.txt my_font.bdf
 
 Load it onto your Adafruit Matrix Portal or whatever and off you go!
 
+## Modify an existing font
+
+Want to start from `terminalio.FONT` or a font that you've converted from .ttf to .bdf/.pcf and modify it? You can do that! First you'll need to export it in matrixfont format from your CircuitPython device. Copy `font_utils.py` onto your device and use it like this:
+
+```python
+import terminalio
+import font_utils
+
+# Export the terminalio default font.
+print("======= START FONT =======")
+font_utils.print_glyphs(terminalio.FONT)
+print("======= END FONT =======")
+
+# Export any font file.
+print("======= START FONT =======")
+font_utils.print_glyphs("lib/font_free_mono_12/font.pcf")
+print("======= END FONT =======")
+```
+
+Save the output between the START FONT and END FONT lines to a file, edit the glyphs as you please, and convert it to .bdf using `txt2bdf` as described above.
+
 ## Background
 
 When building my first LED matrix project (using [a matrix from Adafruit](https://www.adafruit.com/category/327)) I started off using CircuitPython's built-in `terminalio.FONT`. It looks good on an LED matrix but it's taller than it needs to be. Given the very low DPI of LED matrices (a 4mm pitch LED matrix has a DPI of 6.4), I wanted a more compact but still readable font. Space is at a premium!
