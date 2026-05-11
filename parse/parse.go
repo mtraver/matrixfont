@@ -64,7 +64,16 @@ func (p *Parser) run() (matrixfont.Font, error) {
 	}
 
 	p.ctx.flush()
-	return postprocess(p.ctx.font())
+	font, err := postprocess(p.ctx.font())
+	if err != nil {
+		return matrixfont.Font{}, err
+	}
+
+	if err := font.Validate(); err != nil {
+		return matrixfont.Font{}, err
+	}
+
+	return font, nil
 }
 
 func (p *Parser) parseMetadata(ctx *parseContext, tok token) (stateFn, error) {

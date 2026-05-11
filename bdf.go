@@ -89,6 +89,10 @@ func (f Font) WriteBDF(w io.Writer) error {
 		return fmt.Errorf("font has no glyphs")
 	}
 
+	if err := f.Validate(); err != nil {
+		return err
+	}
+
 	ascent, descent := f.AscentDescent()
 	maxWidth, maxHeight, minDX, minDY := f.BoundingBox()
 
