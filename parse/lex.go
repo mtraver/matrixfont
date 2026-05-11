@@ -16,7 +16,7 @@ const (
 	tokenEOF   tokenType = iota // EOF
 	tokenError                  // error
 
-	// Header tokens.
+	// Metadata tokens.
 	tokenFOUNDRY          // FOUNDRY
 	tokenFAMILY           // FAMILY
 	tokenWEIGHT           // WEIGHT
@@ -41,7 +41,7 @@ var linePatterns = []struct {
 	typ     tokenType
 	process func(string) token
 }{
-	// Header section.
+	// Metadata section.
 	{regexp.MustCompile(`^FOUNDRY\s+(.+)$`), tokenFOUNDRY, strToken(tokenFOUNDRY)},
 	{regexp.MustCompile(`^FAMILY\s+(.+)$`), tokenFAMILY, strToken(tokenFAMILY)},
 	{regexp.MustCompile(`^WEIGHT\s+(.+)$`), tokenWEIGHT, strToken(tokenWEIGHT)},

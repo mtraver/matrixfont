@@ -5,7 +5,7 @@ Create a font via an easy-to-edit, visual, text-based format!
 Define your font like this:
 
 ```text
-// These optional header key-value pairs define font metadata used
+// These optional key-value pairs define font metadata used
 // to generate an XLFD font name string for the BDF file.
 FOUNDRY mtraver
 FAMILY ledmatrix

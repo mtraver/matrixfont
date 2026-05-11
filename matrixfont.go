@@ -3,7 +3,7 @@ package matrixfont
 import "math"
 
 type Font struct {
-	Header Header
+	Meta   Metadata
 	Glyphs []Glyph
 }
 

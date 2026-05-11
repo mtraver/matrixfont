@@ -69,11 +69,11 @@ func (f Font) Validate() error {
 	}
 
 	// If a spacing value is specified, validate the font for compliance to spacing requirements.
-	if f.Header.Spacing == SpacingMonospaced && !f.IsMonospace() {
-		return fmt.Errorf("spacing value %q given but font is not monospace", f.Header.Spacing)
+	if f.Meta.Spacing == SpacingMonospaced && !f.IsMonospace() {
+		return fmt.Errorf("spacing value %q given but font is not monospace", f.Meta.Spacing)
 	}
-	if f.Header.Spacing == SpacingCharCell && !f.IsCharCell() {
-		return fmt.Errorf("spacing value %q given but font is not char cell", f.Header.Spacing)
+	if f.Meta.Spacing == SpacingCharCell && !f.IsCharCell() {
+		return fmt.Errorf("spacing value %q given but font is not char cell", f.Meta.Spacing)
 	}
 
 	return nil
@@ -81,7 +81,7 @@ func (f Font) Validate() error {
 
 func (f Font) XLFD() string {
 	_, maxHeight, _, _ := f.BoundingBox()
-	return f.Header.XLFD(maxHeight, f.AvgWidth())
+	return f.Meta.XLFD(maxHeight, f.AvgWidth())
 }
 
 func (f Font) WriteBDF(w io.Writer) error {
@@ -94,7 +94,7 @@ func (f Font) WriteBDF(w io.Writer) error {
 
 	fmt.Fprintln(w, "STARTFONT 2.1")
 	fmt.Fprintf(w, "FONT %s\n", f.XLFD())
-	fmt.Fprintf(w, "SIZE %d %d %d\n", PointSize(maxHeight, f.Header.DPI), f.Header.DPI, f.Header.DPI)
+	fmt.Fprintf(w, "SIZE %d %d %d\n", PointSize(maxHeight, f.Meta.DPI), f.Meta.DPI, f.Meta.DPI)
 	fmt.Fprintf(w, "FONTBOUNDINGBOX %d %d %d %d\n", maxWidth, maxHeight, minDX, minDY)
 	fmt.Fprintln(w, "STARTPROPERTIES 2")
 	fmt.Fprintf(w, "FONT_ASCENT %d\n", ascent)

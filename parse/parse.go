@@ -9,7 +9,7 @@ import (
 )
 
 type parseContext struct {
-	header  matrixfont.Header
+	meta    matrixfont.Metadata
 	glyphs  []matrixfont.Glyph
 	current *matrixfont.Glyph
 }
@@ -26,7 +26,7 @@ func (ctx *parseContext) flush() {
 }
 
 func (ctx *parseContext) font() matrixfont.Font {
-	return matrixfont.Font{Header: ctx.header, Glyphs: ctx.glyphs}
+	return matrixfont.Font{Meta: ctx.meta, Glyphs: ctx.glyphs}
 }
 
 type stateFn func(*parseContext, token) (stateFn, error)
@@ -46,7 +46,7 @@ func Parse(r io.Reader) (matrixfont.Font, error) {
 
 func (p *Parser) run() (matrixfont.Font, error) {
 	var err error
-	var state stateFn = p.parseHeader
+	var state stateFn = p.parseMetadata
 	for state != nil {
 		tok := <-p.lexer.tokens
 		if tok.typ == tokenEOF {
@@ -67,54 +67,54 @@ func (p *Parser) run() (matrixfont.Font, error) {
 	return postprocess(p.ctx.font())
 }
 
-func (p *Parser) parseHeader(ctx *parseContext, tok token) (stateFn, error) {
+func (p *Parser) parseMetadata(ctx *parseContext, tok token) (stateFn, error) {
 	switch tok.typ {
 	case tokenCHAR:
 		ctx.startGlyph(tok.intValue)
 		return p.parseGlyphMeta, nil
 
 	case tokenFOUNDRY:
-		ctx.header.Foundry = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.Foundry = tok.strValue
+		return p.parseMetadata, nil
 
 	case tokenFAMILY:
-		ctx.header.Family = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.Family = tok.strValue
+		return p.parseMetadata, nil
 
 	case tokenWEIGHT:
-		ctx.header.Weight = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.Weight = tok.strValue
+		return p.parseMetadata, nil
 
 	case tokenSLANT:
-		ctx.header.Slant = matrixfont.Slant(strings.ToUpper(tok.strValue))
-		return p.parseHeader, nil
+		ctx.meta.Slant = matrixfont.Slant(strings.ToUpper(tok.strValue))
+		return p.parseMetadata, nil
 
 	case tokenWIDTH:
-		ctx.header.Width = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.Width = tok.strValue
+		return p.parseMetadata, nil
 
 	case tokenSTYLE:
-		ctx.header.Style = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.Style = tok.strValue
+		return p.parseMetadata, nil
 
 	case tokenDPI:
-		ctx.header.DPI = tok.intValue
-		return p.parseHeader, nil
+		ctx.meta.DPI = tok.intValue
+		return p.parseMetadata, nil
 
 	case tokenSPACING:
-		ctx.header.Spacing = matrixfont.Spacing(strings.ToUpper(tok.strValue))
-		return p.parseHeader, nil
+		ctx.meta.Spacing = matrixfont.Spacing(strings.ToUpper(tok.strValue))
+		return p.parseMetadata, nil
 
 	case tokenCHARSET_REGISTRY:
-		ctx.header.CharsetRegistry = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.CharsetRegistry = tok.strValue
+		return p.parseMetadata, nil
 
 	case tokenCHARSET_ENCODING:
-		ctx.header.CharsetEncoding = tok.strValue
-		return p.parseHeader, nil
+		ctx.meta.CharsetEncoding = tok.strValue
+		return p.parseMetadata, nil
 
 	default:
-		return nil, fmt.Errorf("unexpected token in header: %v", tok)
+		return nil, fmt.Errorf("unexpected token in metadata section: %v", tok)
 	}
 }
 

@@ -1,7 +1,7 @@
 package matrixfont
 
-// Header holds the XLFD metadata parsed from the top of a matrix font file.
-type Header struct {
+// Metadata holds the XLFD metadata parsed from the top of a matrix font file.
+type Metadata struct {
 	Foundry         string
 	Family          string
 	Weight          string
@@ -14,7 +14,7 @@ type Header struct {
 	CharsetEncoding string
 }
 
-func (h Header) XLFD(glyphHeightPx, avgGlyphWidhtPx int) string {
+func (h Metadata) XLFD(glyphHeightPx, avgGlyphWidhtPx int) string {
 	foundry := h.Foundry
 	if foundry == "" {
 		foundry = "unknown"
