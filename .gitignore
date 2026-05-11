@@ -29,6 +29,9 @@ go.work.sum
 
 out/
 
+# Mac stuff
+.DS_Store
+
 # Editor/IDE
 # .idea/
 # .vscode/
