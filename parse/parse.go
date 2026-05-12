@@ -16,8 +16,13 @@ type parseContext struct {
 	current *matrixfont.Glyph
 }
 
-func (ctx *parseContext) startGlyph(r rune) {
+func (ctx *parseContext) startGlyph(r rune) error {
+	if _, ok := ctx.glyphs[r]; ok {
+		return fmt.Errorf("duplicate glyph U+%04X (%q)", r, r)
+	}
+
 	ctx.current = &matrixfont.Glyph{Rune: r}
+	return nil
 }
 
 func (ctx *parseContext) flush() {
@@ -93,7 +98,9 @@ func (p *Parser) run() (matrixfont.Font, error) {
 func (p *Parser) parseMetadata(ctx *parseContext, tok token) (stateFn, error) {
 	switch tok.typ {
 	case tokenCHAR:
-		ctx.startGlyph(tok.runeValue)
+		if err := ctx.startGlyph(tok.runeValue); err != nil {
+			return nil, err
+		}
 		return p.parseGlyphMeta, nil
 
 	case tokenFOUNDRY:
@@ -145,7 +152,9 @@ func (p *Parser) parseGlyphMeta(ctx *parseContext, tok token) (stateFn, error) {
 	switch tok.typ {
 	case tokenCHAR:
 		ctx.flush()
-		ctx.startGlyph(tok.runeValue)
+		if err := ctx.startGlyph(tok.runeValue); err != nil {
+			return nil, err
+		}
 		return p.parseGlyphMeta, nil
 
 	case tokenXOFF:
@@ -178,7 +187,9 @@ func (p *Parser) parseGlyphBitmap(ctx *parseContext, tok token) (stateFn, error)
 	switch tok.typ {
 	case tokenCHAR:
 		ctx.flush()
-		ctx.startGlyph(tok.runeValue)
+		if err := ctx.startGlyph(tok.runeValue); err != nil {
+			return nil, err
+		}
 		return p.parseGlyphMeta, nil
 
 	case tokenBitmapRow:
