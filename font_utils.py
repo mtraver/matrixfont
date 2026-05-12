@@ -31,9 +31,13 @@ def print_glyphs(font, first_codepoint=0x20, last_codepoint=0x7e):
     g_h = glyph.height
 
     print("CHAR {}  // \"{}\"".format(hex(codepoint), chr(codepoint)))
-    print("XOFF {}".format(glyph.dx))
-    print("YOFF {}".format(glyph.dy))
-    print("ADVANCE {}".format(glyph.shift_x))
+    if glyph.dx != 0:
+      print("XOFF {}".format(glyph.dx))
+    if glyph.dy != 0:
+      print("YOFF {}".format(glyph.dy))
+    if glyph.shift_x != g_w:
+      print("ADVANCE {}".format(glyph.shift_x))
+
     if g_w == 0 or g_h == 0:
       print("// no ink (empty glyph)")
       print("")
