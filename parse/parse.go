@@ -144,7 +144,7 @@ func (p *Parser) parseMetadata(ctx *parseContext, tok token) (stateFn, error) {
 		return p.parseMetadata, nil
 
 	default:
-		return nil, fmt.Errorf("unexpected token in metadata section: %v", tok)
+		return nil, fmt.Errorf("unexpected token in font metadata: %s", tok.typ)
 	}
 }
 
@@ -179,7 +179,7 @@ func (p *Parser) parseGlyphMeta(ctx *parseContext, tok token) (stateFn, error) {
 		return p.parseGlyphBitmap, nil
 
 	default:
-		return nil, fmt.Errorf("unexpected token in glyph metadata: %v", tok)
+		return nil, fmt.Errorf("unexpected token in glyph metadata: %s", tok.typ)
 	}
 }
 
@@ -202,7 +202,7 @@ func (p *Parser) parseGlyphBitmap(ctx *parseContext, tok token) (stateFn, error)
 		return p.parseGlyphBitmap, nil
 
 	default:
-		return nil, fmt.Errorf("unexpected token in glyph bitmap: %v", tok)
+		return nil, fmt.Errorf("unexpected token in glyph bitmap: %s", tok.typ)
 	}
 }
 
