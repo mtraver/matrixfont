@@ -159,7 +159,12 @@ func (p *Parser) parseGlyphMeta(ctx *parseContext, tok token) (stateFn, error) {
 		return p.parseGlyphMeta, nil
 
 	case tokenBitmapRow:
-		ctx.current.Rows = append(ctx.current.Rows, parseBitmapRow(tok.strValue))
+		row, err := parseBitmapRow(tok.strValue)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.current.Rows = append(ctx.current.Rows, row)
 		return p.parseGlyphBitmap, nil
 
 	default:
@@ -175,7 +180,12 @@ func (p *Parser) parseGlyphBitmap(ctx *parseContext, tok token) (stateFn, error)
 		return p.parseGlyphMeta, nil
 
 	case tokenBitmapRow:
-		ctx.current.Rows = append(ctx.current.Rows, parseBitmapRow(tok.strValue))
+		row, err := parseBitmapRow(tok.strValue)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.current.Rows = append(ctx.current.Rows, row)
 		return p.parseGlyphBitmap, nil
 
 	default:
@@ -183,13 +193,20 @@ func (p *Parser) parseGlyphBitmap(ctx *parseContext, tok token) (stateFn, error)
 	}
 }
 
-func parseBitmapRow(row string) []bool {
+func parseBitmapRow(row string) ([]bool, error) {
 	result := make([]bool, len(row))
 	for i, c := range row {
-		result[i] = c == '#'
+		switch c {
+		case '#':
+			result[i] = true
+		case '.':
+			continue
+		default:
+			return nil, fmt.Errorf("unexpected char in bitmap row: %q", c)
+		}
 	}
 
-	return result
+	return result, nil
 }
 
 func postprocess(font matrixfont.Font) (matrixfont.Font, error) {
