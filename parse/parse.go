@@ -3,9 +3,11 @@ package parse
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/mtraver/matrixfont"
+	"github.com/mtraver/matrixfont/log"
 )
 
 type parseContext struct {
@@ -32,14 +34,24 @@ func (ctx *parseContext) font() matrixfont.Font {
 type stateFn func(*parseContext, token) (stateFn, error)
 
 type Parser struct {
-	lexer *lexer
-	ctx   *parseContext
+	lexer  *lexer
+	ctx    *parseContext
+	logger *log.Logger
+	opts   *parseOptions
 }
 
-func Parse(r io.Reader) (matrixfont.Font, error) {
+func Parse(r io.Reader, opts ...Opt) (matrixfont.Font, error) {
+	options := defaultOptions()
+	for _, o := range opts {
+		o(options)
+	}
+
+	logger := log.New(os.Stdout, options.verbosity)
 	p := &Parser{
-		lexer: lex(r),
-		ctx:   &parseContext{},
+		lexer:  lex(r, logger),
+		ctx:    &parseContext{},
+		logger: logger,
+		opts:   options,
 	}
 	return p.run()
 }

@@ -38,20 +38,46 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 
+	"github.com/mtraver/matrixfont/log"
 	"github.com/mtraver/matrixfont/parse"
 )
 
+// Flags.
+var (
+	flagVerbosity int
+)
+
+func init() {
+	flag.IntVar(
+		&flagVerbosity, "v", log.LevelWarn,
+		fmt.Sprintf("log verbosity from %d (debug) to %d (error)", log.LevelDebug, log.LevelError),
+	)
+}
+
+func parseFlags() error {
+	flag.Parse()
+	return nil
+}
+
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Fprintf(os.Stderr, "Usage: txt2bdf input.txt output.bdf\n")
+	if err := parseFlags(); err != nil {
+		fmt.Printf("argument error: %v\n", err)
 		os.Exit(2)
 	}
 
-	inputPath := os.Args[1]
-	outputPath := os.Args[2]
+	args := flag.Args()
+	if len(args) != 2 {
+		flag.Usage()
+		os.Exit(2)
+	}
+	inputPath := args[0]
+	outputPath := args[1]
+
+	logger := log.New(os.Stdout, flagVerbosity)
 
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
@@ -60,13 +86,13 @@ func main() {
 	}
 	defer inputFile.Close()
 
-	font, err := parse.Parse(inputFile)
+	font, err := parse.Parse(inputFile, parse.WithLogVerbosity(flagVerbosity))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing input: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Parsed %d glyphs\n", len(font.Glyphs))
+	logger.Infof("Parsed %d glyphs", len(font.Glyphs))
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {

@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/mtraver/matrixfont/log"
 )
 
 type tokenType int
@@ -71,12 +73,14 @@ type token struct {
 
 type lexer struct {
 	scanner *bufio.Scanner
+	logger  *log.Logger
 	tokens  chan token
 }
 
-func lex(r io.Reader) *lexer {
+func lex(r io.Reader, logger *log.Logger) *lexer {
 	l := &lexer{
 		scanner: bufio.NewScanner(r),
+		logger:  logger,
 		tokens:  make(chan token),
 	}
 
