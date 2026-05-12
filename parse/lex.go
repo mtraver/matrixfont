@@ -56,7 +56,7 @@ var linePatterns = []struct {
 	{regexp.MustCompile(`^CHARSET_ENCODING\s+(.+)$`), tokenCHARSET_ENCODING, strToken(tokenCHARSET_ENCODING)},
 
 	// Glyph section.
-	{regexp.MustCompile(`^CHAR\s+(.+)$`), tokenCHAR, codepointToken(tokenCHAR)},
+	{regexp.MustCompile(`^CHAR\s+(.+)$`), tokenCHAR, runeToken(tokenCHAR)},
 	{regexp.MustCompile(`^XOFF\s+(.+)$`), tokenXOFF, intToken(tokenXOFF)},
 	{regexp.MustCompile(`^YOFF\s+(.+)$`), tokenYOFF, intToken(tokenYOFF)},
 	{regexp.MustCompile(`^ADVANCE\s+(.+)$`), tokenADVANCE, intToken(tokenADVANCE)},
@@ -66,9 +66,10 @@ var linePatterns = []struct {
 type token struct {
 	typ tokenType
 
-	intValue int
-	strValue string
-	err      error
+	intValue  int
+	runeValue rune
+	strValue  string
+	err       error
 }
 
 type lexer struct {
@@ -147,22 +148,22 @@ func intToken(typ tokenType) func(string) token {
 	}
 }
 
-func codepointToken(typ tokenType) func(string) token {
+func runeToken(typ tokenType) func(string) token {
 	return func(s string) token {
-		cp, err := parseCodepoint(s)
+		r, err := parseCodepoint(s)
 		if err != nil {
-			return token{typ: tokenError, err: fmt.Errorf("invalid codepoint %q: %w", s, err)}
+			return token{typ: tokenError, err: fmt.Errorf("invalid codepoint or character %q: %w", s, err)}
 		}
-		return token{typ: typ, intValue: cp}
+		return token{typ: typ, runeValue: r}
 	}
 }
 
-func parseCodepoint(s string) (int, error) {
+func parseCodepoint(s string) (rune, error) {
 	lower := strings.ToLower(s)
 	if strings.HasPrefix(lower, "u+") || strings.HasPrefix(lower, "0x") {
 		v, err := strconv.ParseInt(lower[2:], 16, 32)
-		return int(v), err
+		return rune(v), err
 	}
 	v, err := strconv.ParseInt(s, 10, 32)
-	return int(v), err
+	return rune(v), err
 }

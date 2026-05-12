@@ -4,7 +4,7 @@ import "math"
 
 type Font struct {
 	Meta   Metadata
-	Glyphs []Glyph
+	Glyphs map[rune]Glyph
 }
 
 func (f Font) AscentDescent() (int, int) {

@@ -13,9 +13,13 @@ func (f Font) IsMonospace() bool {
 		return true
 	}
 
-	shiftX := f.Glyphs[0].ShiftX
+	var shiftX *int
 	for _, g := range f.Glyphs {
-		if g.ShiftX != shiftX {
+		if shiftX == nil {
+			shiftX = &g.ShiftX
+		}
+
+		if g.ShiftX != *shiftX {
 			return false
 		}
 	}
@@ -40,9 +44,13 @@ func (f Font) IsCharCell() bool {
 		return false
 	}
 
-	shiftX := f.Glyphs[0].ShiftX
+	var shiftX *int
 	for _, g := range f.Glyphs {
-		if g.ShiftX != shiftX {
+		if shiftX == nil {
+			shiftX = &g.ShiftX
+		}
+
+		if g.ShiftX != *shiftX {
 			return false
 		}
 
@@ -64,7 +72,7 @@ func (f Font) Validate() error {
 	// Validate each glyph.
 	for _, g := range f.Glyphs {
 		if err := g.Validate(); err != nil {
-			return fmt.Errorf("glyph U+%04X: %w", g.Codepoint, err)
+			return fmt.Errorf("glyph U+%04X (%q): %w", g.Rune, g.Rune, err)
 		}
 	}
 

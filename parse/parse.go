@@ -12,17 +12,17 @@ import (
 
 type parseContext struct {
 	meta    matrixfont.Metadata
-	glyphs  []matrixfont.Glyph
+	glyphs  map[rune]matrixfont.Glyph
 	current *matrixfont.Glyph
 }
 
-func (ctx *parseContext) startGlyph(codepoint int) {
-	ctx.current = &matrixfont.Glyph{Codepoint: codepoint}
+func (ctx *parseContext) startGlyph(r rune) {
+	ctx.current = &matrixfont.Glyph{Rune: r}
 }
 
 func (ctx *parseContext) flush() {
 	if ctx.current != nil {
-		ctx.glyphs = append(ctx.glyphs, *ctx.current)
+		ctx.glyphs[ctx.current.Rune] = *ctx.current
 		ctx.current = nil
 	}
 }
@@ -48,8 +48,10 @@ func Parse(r io.Reader, opts ...Opt) (matrixfont.Font, error) {
 
 	logger := log.New(os.Stdout, options.verbosity)
 	p := &Parser{
-		lexer:  lex(r, logger),
-		ctx:    &parseContext{},
+		lexer: lex(r, logger),
+		ctx: &parseContext{
+			glyphs: make(map[rune]matrixfont.Glyph),
+		},
 		logger: logger,
 		opts:   options,
 	}
@@ -91,7 +93,7 @@ func (p *Parser) run() (matrixfont.Font, error) {
 func (p *Parser) parseMetadata(ctx *parseContext, tok token) (stateFn, error) {
 	switch tok.typ {
 	case tokenCHAR:
-		ctx.startGlyph(tok.intValue)
+		ctx.startGlyph(tok.runeValue)
 		return p.parseGlyphMeta, nil
 
 	case tokenFOUNDRY:
@@ -143,7 +145,7 @@ func (p *Parser) parseGlyphMeta(ctx *parseContext, tok token) (stateFn, error) {
 	switch tok.typ {
 	case tokenCHAR:
 		ctx.flush()
-		ctx.startGlyph(tok.intValue)
+		ctx.startGlyph(tok.runeValue)
 		return p.parseGlyphMeta, nil
 
 	case tokenXOFF:
@@ -176,7 +178,7 @@ func (p *Parser) parseGlyphBitmap(ctx *parseContext, tok token) (stateFn, error)
 	switch tok.typ {
 	case tokenCHAR:
 		ctx.flush()
-		ctx.startGlyph(tok.intValue)
+		ctx.startGlyph(tok.runeValue)
 		return p.parseGlyphMeta, nil
 
 	case tokenBitmapRow:
@@ -211,12 +213,13 @@ func parseBitmapRow(row string) ([]bool, error) {
 
 func postprocess(font matrixfont.Font) (matrixfont.Font, error) {
 	// Empty glyphs must have ADVANCE set.
-	for i, g := range font.Glyphs {
+	for r, g := range font.Glyphs {
 		if g.Width() == 0 && g.ShiftX == 0 {
-			return matrixfont.Font{}, fmt.Errorf("glyph U+%04X has no ink and no ADVANCE set", g.Codepoint)
+			return matrixfont.Font{}, fmt.Errorf("glyph U+%04X (%q) has no ink and no ADVANCE set", g.Rune, g.Rune)
 		}
 		if g.ShiftX == 0 {
-			font.Glyphs[i].ShiftX = g.DX + g.Width()
+			g.ShiftX = g.DX + g.Width()
+			font.Glyphs[r] = g
 		}
 	}
 

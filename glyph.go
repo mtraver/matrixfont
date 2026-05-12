@@ -7,7 +7,7 @@ import (
 )
 
 type Glyph struct {
-	Codepoint int
+	Rune rune
 
 	Rows [][]bool
 
@@ -64,7 +64,7 @@ func (g Glyph) Validate() error {
 
 func (g Glyph) String() string {
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "CHAR 0x%x  // %q\n", g.Codepoint, rune(g.Codepoint))
+	fmt.Fprintf(&sb, "CHAR 0x%x  // %q\n", g.Rune, g.Rune)
 	for i, r := range g.Rows {
 		fmt.Fprint(&sb, rowToString(r))
 		if i < len(g.Rows)-1 {
@@ -82,8 +82,8 @@ func (g Glyph) BDF() (string, error) {
 
 	var sb strings.Builder
 
-	fmt.Fprintf(&sb, "STARTCHAR U+%04X\n", g.Codepoint)
-	fmt.Fprintf(&sb, "ENCODING %d\n", g.Codepoint)
+	fmt.Fprintf(&sb, "STARTCHAR U+%04X\n", g.Rune)
+	fmt.Fprintf(&sb, "ENCODING %d\n", g.Rune)
 	fmt.Fprintln(&sb, "SWIDTH 1000 0")
 	fmt.Fprintf(&sb, "DWIDTH %d 0\n", g.ShiftX)
 	fmt.Fprintf(&sb, "BBX %d %d %d %d\n", g.Width(), g.Height(), g.DX, g.DY)
