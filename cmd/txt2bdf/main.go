@@ -88,7 +88,7 @@ func main() {
 
 	font, err := parse.Parse(inputFile, parse.WithLogVerbosity(flagVerbosity))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing input: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Parsing error: %v\n", err)
 		os.Exit(1)
 	}
 

@@ -64,7 +64,8 @@ var linePatterns = []struct {
 }
 
 type token struct {
-	typ tokenType
+	typ  tokenType
+	line int
 
 	intValue  int
 	runeValue rune
@@ -92,7 +93,9 @@ func lex(r io.Reader, logger *log.Logger) *lexer {
 func (l *lexer) run() {
 	defer close(l.tokens)
 
+	var lineNum int
 	for l.scanner.Scan() {
+		lineNum++
 		line := preprocess(l.scanner.Text())
 
 		// Skip blank lines. Comment lines will have been transformed into
@@ -101,7 +104,9 @@ func (l *lexer) run() {
 			continue
 		}
 
-		l.tokens <- l.classifyLine(line)
+		tok := l.classifyLine(line)
+		tok.line = lineNum
+		l.tokens <- tok
 	}
 
 	if err := l.scanner.Err(); err != nil {

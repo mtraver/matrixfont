@@ -78,7 +78,7 @@ func (p *Parser) run() (matrixfont.Font, error) {
 
 		state, err = state(p.ctx, tok)
 		if err != nil {
-			return matrixfont.Font{}, err
+			return matrixfont.Font{}, fmt.Errorf("line %d: %w", tok.line, err)
 		}
 	}
 
