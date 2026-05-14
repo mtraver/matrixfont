@@ -3,6 +3,8 @@ package matrixfont
 import (
 	"fmt"
 	"io"
+	"maps"
+	"slices"
 )
 
 // IsMonospace returns true if the font meets the requirements
@@ -114,8 +116,9 @@ func (f Font) WriteBDF(w io.Writer) error {
 	fmt.Fprintln(w, "ENDPROPERTIES")
 	fmt.Fprintf(w, "CHARS %d\n", len(f.Glyphs))
 
-	for _, g := range f.Glyphs {
-		glyphBDF, err := g.BDF()
+	// Sort the font's runes so that BDF generation is deterministic.
+	for _, r := range slices.Sorted(maps.Keys(f.Glyphs)) {
+		glyphBDF, err := f.Glyphs[r].BDF()
 		if err != nil {
 			return err
 		}
