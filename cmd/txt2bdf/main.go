@@ -69,13 +69,12 @@ func main() {
 		os.Exit(2)
 	}
 
-	args := flag.Args()
-	if len(args) != 2 {
+	if flag.NArg() != 2 {
 		flag.Usage()
 		os.Exit(2)
 	}
-	inputPath := args[0]
-	outputPath := args[1]
+	inputPath := flag.Arg(0)
+	outputPath := flag.Arg(1)
 
 	logger := log.New(os.Stdout, flagVerbosity)
 
