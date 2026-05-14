@@ -1,6 +1,10 @@
 package matrixfont
 
-import "math"
+import (
+	"math"
+	"sort"
+	"unicode"
+)
 
 type Font struct {
 	Meta   Metadata
@@ -64,4 +68,41 @@ func (f Font) BoundingBox() (int, int, int, int) {
 	maxHeight := maxTop - minDY
 
 	return maxWidth, maxHeight, minDX, minDY
+}
+
+// OrderedPrintableRunes returns the font's printable runes in preview order: A-Z, a-z, 0-9, other printable ASCII, then any remaining printable runes in sorted order.
+func (f Font) OrderedPrintableRunes() []rune {
+	var result []rune
+	seen := make(map[rune]bool)
+
+	add := func(r rune) {
+		if _, inFont := f.Glyphs[r]; inFont && !seen[r] {
+			result = append(result, r)
+			seen[r] = true
+		}
+	}
+
+	for r := 'A'; r <= 'Z'; r++ {
+		add(r)
+	}
+	for r := 'a'; r <= 'z'; r++ {
+		add(r)
+	}
+	for r := '0'; r <= '9'; r++ {
+		add(r)
+	}
+	for r := rune(0x20); r <= 0x7e; r++ {
+		add(r)
+	}
+
+	var remaining []rune
+	for r := range f.Glyphs {
+		if !seen[r] && unicode.IsPrint(r) {
+			remaining = append(remaining, r)
+		}
+	}
+	sort.Slice(remaining, func(i, j int) bool { return remaining[i] < remaining[j] })
+	result = append(result, remaining...)
+
+	return result
 }
