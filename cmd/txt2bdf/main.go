@@ -73,21 +73,21 @@ func main() {
 		flag.Usage()
 		os.Exit(2)
 	}
-	inputPath := flag.Arg(0)
+	fontPath := flag.Arg(0)
 	outputPath := flag.Arg(1)
 
 	logger := log.New(os.Stdout, flagVerbosity)
 
-	inputFile, err := os.Open(inputPath)
+	fontFile, err := os.Open(fontPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening input file: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error opening font file: %v\n", err)
 		os.Exit(1)
 	}
-	defer inputFile.Close()
+	defer fontFile.Close()
 
-	font, err := parse.Parse(inputFile, parse.WithLogVerbosity(flagVerbosity))
+	font, err := parse.Parse(fontFile, parse.WithLogVerbosity(flagVerbosity))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Parsing error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Font parsing error: %v\n", err)
 		os.Exit(1)
 	}
 
