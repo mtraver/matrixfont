@@ -1,4 +1,4 @@
-// txt2bdf converts an ASCII matrix font file to a BDF font file.
+// matf2bdf converts a matrix font file to a BDF font file.
 //
 // Input format:
 //
@@ -33,7 +33,7 @@
 //
 // Usage:
 //
-//	go run main.go input.txt output.bdf
+//	go run main.go input.matf output.bdf
 package main
 
 import (
@@ -58,7 +58,7 @@ func init() {
 	)
 
 	flag.Usage = func() {
-		message := `usage: txt2bdf [options] font_file output_file
+		message := `usage: matf2bdf [options] font_file output_file
 
 Positional Arguments (required):
   font_file

@@ -52,7 +52,7 @@ CHAR 0x43  // "C"
 Then create a .bdf file from it like this:
 
 ```sh
-go run ./cmd/txt2bdf my_font.txt my_font.bdf
+go run ./cmd/matf2bdf my_font.matf my_font.bdf
 ```
 
 Load it onto your Adafruit Matrix Portal or whatever and off you go!
@@ -76,7 +76,7 @@ font_utils.print_glyphs("lib/font_free_mono_12/font.pcf")
 print("======= END FONT =======")
 ```
 
-Save the output between the START FONT and END FONT lines to a file, edit the glyphs as you please, and convert it to .bdf using `txt2bdf` as described above.
+Save the output between the START FONT and END FONT lines to a file, edit the glyphs as you please, and convert it to .bdf using `matf2bdf` as described above.
 
 ## Background
 
