@@ -56,6 +56,23 @@ func init() {
 		&flagVerbosity, "v", log.LevelWarn,
 		fmt.Sprintf("log verbosity from %d (debug) to %d (error)", log.LevelDebug, log.LevelError),
 	)
+
+	flag.Usage = func() {
+		message := `usage: txt2bdf [options] font_file output_file
+
+Positional Arguments (required):
+  font_file
+      path to the matrix font file
+
+  output_file
+      path to the output bdf file
+
+Options:
+`
+
+		fmt.Fprint(flag.CommandLine.Output(), message)
+		flag.PrintDefaults()
+	}
 }
 
 func parseFlags() error {
